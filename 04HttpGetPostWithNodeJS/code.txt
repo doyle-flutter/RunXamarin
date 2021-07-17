@@ -1,0 +1,74 @@
+// [PageThr.xaml]------------------------------------------------------------
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="example.PageThr">
+    <StackLayout>
+        <Label Text="PAGE33333" />
+        <Frame Margin="30" HeightRequest="200">
+            <Label x:Name="ResName" VerticalTextAlignment="Center" HorizontalTextAlignment="Center" MaxLines="1" />
+        </Frame>
+        
+        <Button Text="GET_Req" Clicked="GetReq"></Button>
+        <Button Text="POST_Req" Clicked="PostReq"></Button>
+    </StackLayout>
+</ContentPage>
+
+// [PageThr.xaml.cs]------------------------------------------------------------
+using System;
+using System.Net.Http;
+using System.Text;
+using Xamarin.Forms;
+
+namespace example
+{
+    public partial class PageThr : ContentPage
+    {
+        public PageThr()
+        {
+            InitializeComponent();
+        }
+
+        private string EndPoint = "http://192.168.25.4:3003";
+
+        public async void GetReq(object sender, EventArgs e) {
+            HttpClient client = new HttpClient();
+            Uri uri = new Uri(this.EndPoint+"/x1");
+            HttpResponseMessage res = await client.GetAsync(uri);
+            string ResBodyData = await res.Content.ReadAsStringAsync();
+            Console.WriteLine(ResName.Text == "");
+            Console.WriteLine(ResName.Text == null);
+            if (ResName.Text != null) {
+                ResName.Text = null;
+                return;
+            }
+            ResName.Text = "NodeJS : "+ResBodyData;
+            return;
+        }
+
+        public async void PostReq(object sender, EventArgs e)
+        {
+            HttpClient client = new HttpClient();
+            Uri uri = new Uri(this.EndPoint+"/x1p");
+            HttpResponseMessage res = await client.PostAsync(uri, new StringContent("", Encoding.UTF8, "application/json"));
+            string ResBodyData = await res.Content.ReadAsStringAsync();
+            Console.WriteLine(ResName.Text == "");
+            Console.WriteLine(ResName.Text == null);
+            if (ResName.Text != null)
+            {
+                ResName.Text = null;
+                return;
+            }
+            ResName.Text = "NodeJS(POST) : " + ResBodyData;
+            return;
+        }
+    }
+}
+
+// [NodeJS - index.js]------------------------------------------------------------
+const express = require('express'), app = express();
+app.listen(3003);
+app.get('/x1', (req,res) => res.json("hi Xamarin - 제임쓰 Dev"));
+app.post('/x1p', (req,res) => res.json("POST,hi Xamarin - 제임쓰 Dev"));
+
