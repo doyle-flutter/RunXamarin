@@ -19,5 +19,9 @@ C# Study
 
 03. Navigation Push & Pop & Replace : [Code : xaml + cs](https://github.com/doyle-flutter/RunXamarin/blob/main/03NavigationPushPopReplace/code.txt)
 
+<img width="50%" src="https://user-images.githubusercontent.com/56661529/126036024-224fbd6c-2e96-4772-ae9e-4f82c3718694.png" />
+
+04. Http Get/Post & NodeJS : [Code : xaml + cs](https://github.com/doyle-flutter/RunXamarin/blob/main/04HttpGetPostWithNodeJS/code.txt)
+
 <br />
 ...
