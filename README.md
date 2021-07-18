@@ -27,5 +27,4 @@ C# Study
 
 05.카카오 로그인 및 로그아웃 구현 : [Xamarin + NodeJS](https://github.com/doyle-flutter/RunXamarin/tree/main/05KakaOLogin)
 
-<br />
-...
+### - end 🧐
