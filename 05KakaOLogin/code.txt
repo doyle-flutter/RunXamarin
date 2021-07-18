@@ -1,0 +1,127 @@
+// [MainPage.xaml.cs]-------------------------------------------------
+
+using System;
+using System.Net.Http;
+using System.Text;
+using Xamarin.Forms;
+
+namespace example
+{
+    public partial class MainPage : ContentPage
+    {
+        public MainPage()
+        {
+            InitializeComponent();
+
+            Label t1 = new Label { Text = "Col1", };
+            Label t2 = new Label { Text = "Col1", };
+            Label t3 = new Label { Text = "Col1", };
+            columnInTxt.Children.Add(t1);
+            columnInTxt.Children.Add(t2);
+            columnInTxt.Children.Add(t3);
+
+        }
+        void onPressed(object sender, EventArgs e)
+        {
+            DisplayAlert("BTN", "CLICK", "CLose");
+            james.Text = "JAMES BTN Click";
+        }
+        public async void PageMove1(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new PageTwo());
+        }
+        public async void KakaoLogin(object sender, EventArgs e) {
+            await Navigation.PushAsync(new KakaoLogin());
+        }
+        public async void KakaoLogout(object sender, EventArgs e) {
+            if (App.UserToken == null) return;
+            string Token = App.UserToken;
+            HttpClient client = new HttpClient();
+            Uri uri = new Uri("https://kapi.kakao.com/v1/user/unlink");
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Token}");
+            HttpResponseMessage res = await client.PostAsync(uri, new StringContent("", Encoding.UTF8, "application/json"));
+            string ResBodyData = await res.Content.ReadAsStringAsync();
+            App.UserToken = null;
+            await DisplayAlert("카카오 로그아웃", "(토큰)성공", "Close");
+        }
+    }
+}
+
+
+// [KakaoLogin.xaml]-------------------------------------------------
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="example.KakaoLogin">
+    <WebView x:Name="KakaoWebView" Navigated="MywebView_Navigated"  />
+</ContentPage>
+
+
+// [KakaoLogin.xaml.cs]-------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using Xamarin.Forms;
+
+namespace example
+{
+    public partial class KakaoLogin : ContentPage
+    {
+
+        public KakaoLogin()
+        {
+            InitializeComponent();
+            KakaoWebView.Source = this.KakaoUri();
+            
+            
+        }
+
+        private string KakaoUri()
+        {
+            string REST_API_KEY = "";
+            string REDIRECT_URI = "http://127.0.0.1:3003/oauth";
+            return "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" + REST_API_KEY + "&redirect_uri=" + REDIRECT_URI;
+        }
+
+
+        private async Task<bool> Check()
+        {
+
+            string _endPoint = "https://kauth.kakao.com/oauth/token";
+            string REST_API_KEY = "";
+            string REDIRECT_URI = "http://127.0.0.1/oauth";
+
+            string value = await KakaoWebView.EvaluateJavaScriptAsync("login(1)");
+
+            HttpClient client = new HttpClient();
+            Uri uri = new Uri(_endPoint+ "?grant_type=authorization_code" + $"&client_id={REST_API_KEY}" + $"&redirect_uri={REDIRECT_URI}" + $"&code={value}");
+            HttpResponseMessage res = await client.PostAsync(uri, new StringContent("", Encoding.UTF8, "application/x-www-form-urlencoded"));
+            string ResBodyData = await res.Content.ReadAsStringAsync();
+            string p1 = ResBodyData.Split(new string[] { "\",\"" }, StringSplitOptions.None)[0];
+            string p2 = p1.Split(new string[] { "\":\"" }, StringSplitOptions.None)[1];
+            App.UserToken = p2;
+            if (value == null || value.Length < 3) return false;
+            return true;
+        }
+        private async void MywebView_Navigated(object sender, WebNavigatedEventArgs e)
+        {
+            bool c = await Check();
+            if (c)
+            {
+                await DisplayAlert("카카오 로그인", "(인가코드~토큰)성공", "CLose");
+                await Navigation.PushAsync(new PageTwo());
+                Navigation.RemovePage(this);
+            }
+            else {
+                return;
+                //await DisplayAlert("카카오 로그인", "실패ㅠㅠ", "CLose");
+                //await Navigation.PopAsync();
+            }
+        }
+    }
+}
